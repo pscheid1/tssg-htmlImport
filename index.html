@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Technical Skills Share Group (TSSG)</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="https://code.jquery.com/jquery-1.10.2.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css">
+
+
+
+    <link rel="stylesheet" type="text/css" href="styles/tssgStyle.css">
+    <link rel="import" href="imports/tssgPageTemplate.html">
+
+    <script language="javascript">
+        "use strict";
+        // Because these variables are not declared in a function, their
+        // scope is global.
+
+        // enable/disable console.log messages containing data
+        var debugTrace = false;
+        // enable/disable console.log messages indicating code path
+        var debugData = false;
+
+        var htmlDoc;
+        var navbarElement;
+        var footerElement;
+        var homeContent;
+        var mobileContent;
+        var dataContent;
+        var devOpsContent;
+        var qualityContent;
+        var webContent;
+        var scheduleContent;
+        var currentContent;
+        var newContent;
+        var debugPage;
+        var emptyPlaceHolder;
+        var carousel;
+        var displayFooter = true;
+
+        // test this browser to see if it supports link import
+        var rslt = 'import' in document.createElement('link');
+        if (rslt) {
+            //  link import is supported, import our document template
+            htmlDoc = document.querySelector('link[rel="import"]').import;
+            if (debugData) console.log("htmlDoc: " + htmlDoc);
+        }
+        else {
+            // link import is not supported, read document template with jquery
+            if (debugTrace) console.log("import not supported");
+            jQuery.ajaxSetup({ async: false });
+            var htmlFile = getHTML();
+            jQuery.ajaxSetup({ async: true });
+            if (debugData) console.log("htmlFile: " + htmlFile);
+            htmlDoc = document.createElement('div');
+            htmlDoc.innerHTML = htmlFile;
+
+            if (debugTrace) console.log("4444444444444444444444");
+            if (debugData) console.log("htmlDoc: " + htmlDoc.innerHTML);
+        }
+
+        if (debugTrace) console.log("333333333333333333333");
+        if (debugData) console.log("htmlDoc: " + htmlDoc.innerHTML);
+
+        // abitrary but seems to fit current definition 
+        // this is based on screen size which will remain constant
+        var isPhone = (screen.availWidth < 900 && screen.availHeight < 900);
+
+        // Grab the nav-bar div section
+        navbarElement = htmlDoc.querySelector('#nav-bar');
+        if (debugData) console.log("navbarElement: " + navbarElement.innerHTML);
+        // Grab the footer div section
+        footerElement = htmlDoc.querySelector('#footer');
+        if (debugData) console.log("footer: " + footerElement.innerHTML);
+        // Grab the content of each page
+        homeContent = htmlDoc.querySelector('#home-page');
+        // Initialize currentContent to home page. This will
+        // cause the home page to be the initial page when the 
+        // script is called in the body section below.
+        currentContent = homeContent;
+        mobileContent = htmlDoc.querySelector('#mobile-group');
+        dataContent = htmlDoc.querySelector('#data-group');
+        devOpsContent = htmlDoc.querySelector('#devOps-group');
+        qualityContent = htmlDoc.querySelector('#quality-group');
+        webContent = htmlDoc.querySelector('#web-group');
+        scheduleContent = htmlDoc.querySelector('#calendar-page');
+        debugPage = htmlDoc.querySelector('#debug-page');
+        emptyPlaceHolder = htmlDoc.querySelector('#empty-placeHolder');
+
+        // this function will get called each time the view port changes
+        // if the device is a phone and display mode is landscape, the footer is removed if
+        // required.  Otherwise if it is a phone in portriat mode, the footer is appended if
+        // required.  if the device is not a phone, no action is taken.
+        // window.addEventListener("resize", function () {
+        function winResize() {
+            if (isPhone) {
+                if (modeIsLandscape()) {
+                    if (displayFooter) {
+                        // footer is displayed.  Remove it
+                        var element = document.getElementById("footer");
+                        element.parentNode.removeChild(element);
+                        // replace the carousel with an empty place holder
+                        carousel = document.getElementById("carouselContainer");
+                        carousel.replaceWith(emptyPlaceHolder);
+                        displayFooter = false;
+                    }
+                    else {
+                        // footer currently not displayed.  Exit
+                    }
+                } else {
+                    // phone is in portriat mode
+                    if (!displayFooter) {
+                        // portriat mode and footer is not displayed.  Display it
+                        // footer is always on the bottom, so just append it
+                        document.body.appendChild(footerElement.cloneNode(true));
+                        // replace the empty place holder with the carousel
+                        var element = document.getElementById("empty-placeHolder");
+                        element.replaceWith(carousel);
+
+                        displayFooter = true;
+                    }
+                    else {
+                        // footer currently displayed.  Exit
+                    }
+                }
+            }
+        }
+
+        // this funciton will replace the currently displayed content 
+        // with the requested new content.  If the requested content is 
+        // not home, calendar, and debug, it will add the selected class
+        // to the new content and remove it from the old content.
+        function setContent(newContent) {
+            if (debugData) console.log("newContentId: " + newContent.id);
+            if (debugData) console.log("currentContentId: " + currentContent.id);
+            var oldContent = document.getElementById(currentContent.id);
+            if (debugData) console.log("oldContent: " + oldContent.outerHTML);
+            document.body.replaceChild(newContent, oldContent);
+            if (displayFooter) {
+                var iconId = getIconId(oldContent);
+                if (debugData) console.log("oldIcon: " + iconId)
+                if (iconId.length > 0) {
+                    // home and calenear icons are no longer being used in the footer
+                    if (iconId !== "home" &&
+                        iconId !== "calendar" &&
+                        iconId != 'debug' &&
+                        iconId != "empty") {
+                        removeClass(iconId, "selected");
+                    }
+                }
+                iconId = getIconId(newContent);
+                if (debugData) console.log("newIcon: " + iconId);
+                if (iconId.length > 0) {
+                    // home and calenear icons are no longer being used in the footer
+                    if (iconId !== "home" &&
+                        iconId !== "calendar" &&
+                        iconId != 'debug' &&
+                        iconId != "empty") {
+                        addClass(iconId, "selected");
+                    }
+                }
+            }
+            currentContent = newContent;
+        }
+
+        // add class to element with supplied Id
+        function addClass(divId, classname) {
+            var el = document.getElementById(divId);
+            // No need to check if class is already assigned.
+            // If it is, it will not be added again.
+            el.classList.add(classname);
+        }
+
+        // remove class from element with supplied Id
+        function removeClass(divId, classname) {
+            var el = document.getElementById(divId);
+            // if class is not assigned, an error will NOT
+            // be thrown.
+            el.classList.remove(divId, classname);
+        }
+
+        // this function returns true if an element id contains the
+        // supplied classname.
+        function testClass(divId, classname) {
+            var el = document.getElementById(divId);
+            return el.classList.contains(divId, classname);
+        }
+
+        // return the Id for footer icon matching supplied content Id
+        // content id must contain a hyphen
+        // leading portion of content id must match an icon id
+        function getIconId(contentDiv) {
+            var contentId = contentDiv.id;
+            var index = contentId.indexOf("-");
+            if (index === -1 || index === 0)
+                return "";
+            return contentId.substring(0, index);
+        }
+
+        // return view port width
+        function viewPortWidth() {
+            return window.innerWidth
+                || document.documentElement.clientWidth
+                || document.body.clientWidth;
+        }
+
+        // return view port height
+        function viewPortHeight() {
+            return window.innerHeight
+                || document.documentElement.clientHeight
+                || document.body.clientHeight;
+        }
+
+        // is device in portriat mode
+        function modeIsPortriat() {
+            return (viewPortHeight() > viewPortWidth());
+        }
+
+        // is device in landscape mode
+        function modeIsLandscape() {
+            return !modeIsPortriat();
+        }
+
+        function getHTML() {
+            if (debugTrace) console.log("aaaaaaaaaaaaaaaaaaaaaa");
+            var zzz;
+            var htmlFile;
+            $.get('/imports/tssgPageTemplate.html', function (data) {
+                if (debugData) console.log("data: " + data);
+                if (debugTrace) console.log("0000000000000000000000");
+                htmlFile = document.createElement('div');
+                htmlFile = data;
+                if (debugTrace) console.log("11111111111111111111111");
+                if (debugData) console.log("htmlFile: " + htmlFile);
+
+                // if (true) console.log("htmlDoc: " + htmlDoc);
+
+                // zzz = htmlFile;
+                // jQuery.ajaxSetup({ async: true });
+
+                if (debugTrace) console.log("bbbbbbbbbbbbbbbbbbbbbbbbbbbbb");
+            });
+
+            if (debugTrace) console.log("ccccccccccccccccccccccccccccc");
+            return htmlFile;
+        }
+
+
+
+        // this can be used to display various debug information.  
+        // currently it is called by a nav-bar button.  
+        function debugStuff() {
+
+            setContent(debugPage);
+
+            document.getElementById("demow").innerHTML =
+                "Screen width is " + screen.width;
+
+            document.getElementById("demoh").innerHTML =
+                "Screen height is " + screen.height;
+
+            document.getElementById("demoaw").innerHTML =
+                "Screen available width is " + screen.availWidth;
+
+            document.getElementById("demoah").innerHTML =
+                "Screen available height is " + screen.availHeight;
+
+            var w = window.innerWidth
+                || document.documentElement.clientWidth
+                || document.body.clientWidth;
+
+            var h = window.innerHeight
+                || document.documentElement.clientHeight
+                || document.body.clientHeight;
+
+            var x = document.getElementById("demows");
+            x.innerHTML = "Browser inner window width: " + w + ", height: " + h + ".";
+
+            document.getElementById("demov").innerHTML = navigator.appVersion;
+
+            document.getElementById("demoa").innerHTML = navigator.userAgent;
+
+            document.getElementById("demop").innerHTML = navigator.platform;
+
+            document.getElementById("demol").innerHTML = navigator.language;
+
+            document.getElementById("isphone").innerHTML = (isPhone) ? "isPhone = true" : "isPhone = false";
+
+            document.getElementById("isportriat").innerHTML = (modeIsPortriat()) ? "isPortriat = true" : "isPortriat = false";
+
+            document.getElementById("islandscape").innerHTML = (modeIsLandscape()) ? "isLandscape = true" : "isLandscape = false";
+
+            document.getElementById("dispfooter").innerHTML = (displayFooter) ? "displayFooter = true" : "displayFooter = false";
+
+        }
+
+        function toggleIsPhone() {
+            isPhone = !isPhone;
+            winResize();
+        }
+
+    </script>
+</head>
+
+<body onresize="winResize()">
+    <script language="javascript">
+        // append each section to our DOM in the desired order
+        document.body.appendChild(navbarElement.cloneNode(true));
+        document.body.appendChild(currentContent.cloneNode(true));
+        if (displayFooter) {
+            document.body.appendChild(footerElement.cloneNode(true));
+        }
+        // The home page is loaded as the landing page, however
+        // the icon has been removed from the footer so there 
+        // is no need to set it as selected.
+        // addClass("home", "selected");
+        if (debugData) console.log("head: " + document.head.outerHTML);
+        if (debugData) console.log("body: " + document.body.outerHTML);
+    </script>
+
+</body>
+
+</html>
