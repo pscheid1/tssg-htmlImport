@@ -17,7 +17,9 @@
     <link rel="import" href="imports/tssgPageTemplate.html">
 
     <script language="javascript">
+
         "use strict";
+ 
         // Because these variables are not declared in a function, their
         // scope is global.
 
@@ -43,54 +45,6 @@
         var carousel;
         var displayFooter = true;
 
-        // test this browser to see if it supports link import
-        var rslt = 'import' in document.createElement('link');
-        if (rslt) {
-            //  link import is supported, import our document template
-            htmlDoc = document.querySelector('link[rel="import"]').import;
-            if (debugData) console.log("htmlDoc: " + htmlDoc);
-        }
-        else {
-            // link import is not supported, read document template with jquery
-            if (debugTrace) console.log("import not supported");
-            jQuery.ajaxSetup({ async: false });
-            var htmlFile = getHTML();
-            jQuery.ajaxSetup({ async: true });
-            if (debugData) console.log("htmlFile: " + htmlFile);
-            htmlDoc = document.createElement('div');
-            htmlDoc.innerHTML = htmlFile;
-
-            if (debugTrace) console.log("4444444444444444444444");
-            if (debugData) console.log("htmlDoc: " + htmlDoc.innerHTML);
-        }
-
-        if (debugTrace) console.log("333333333333333333333");
-        if (debugData) console.log("htmlDoc: " + htmlDoc.innerHTML);
-
-        // abitrary but seems to fit current definition 
-        // this is based on screen size which will remain constant
-        var isPhone = (screen.availWidth < 900 && screen.availHeight < 900);
-
-        // Grab the nav-bar div section
-        navbarElement = htmlDoc.querySelector('#nav-bar');
-        if (debugData) console.log("navbarElement: " + navbarElement.innerHTML);
-        // Grab the footer div section
-        footerElement = htmlDoc.querySelector('#footer');
-        if (debugData) console.log("footer: " + footerElement.innerHTML);
-        // Grab the content of each page
-        homeContent = htmlDoc.querySelector('#home-page');
-        // Initialize currentContent to home page. This will
-        // cause the home page to be the initial page when the 
-        // script is called in the body section below.
-        currentContent = homeContent;
-        mobileContent = htmlDoc.querySelector('#mobile-group');
-        dataContent = htmlDoc.querySelector('#data-group');
-        devOpsContent = htmlDoc.querySelector('#devOps-group');
-        qualityContent = htmlDoc.querySelector('#quality-group');
-        webContent = htmlDoc.querySelector('#web-group');
-        scheduleContent = htmlDoc.querySelector('#calendar-page');
-        debugPage = htmlDoc.querySelector('#debug-page');
-        emptyPlaceHolder = htmlDoc.querySelector('#empty-placeHolder');
 
         // this function will get called each time the view port changes
         // if the device is a phone and display mode is landscape, the footer is removed if
@@ -136,14 +90,12 @@
         // not home, calendar, and debug, it will add the selected class
         // to the new content and remove it from the old content.
         function setContent(newContent) {
-            if (debugData) console.log("newContentId: " + newContent.id);
-            if (debugData) console.log("currentContentId: " + currentContent.id);
+
             var oldContent = document.getElementById(currentContent.id);
             if (debugData) console.log("oldContent: " + oldContent.outerHTML);
             document.body.replaceChild(newContent, oldContent);
             if (displayFooter) {
                 var iconId = getIconId(oldContent);
-                if (debugData) console.log("oldIcon: " + iconId)
                 if (iconId.length > 0) {
                     // home and calenear icons are no longer being used in the footer
                     if (iconId !== "home" &&
@@ -154,7 +106,6 @@
                     }
                 }
                 iconId = getIconId(newContent);
-                if (debugData) console.log("newIcon: " + iconId);
                 if (iconId.length > 0) {
                     // home and calenear icons are no longer being used in the footer
                     if (iconId !== "home" &&
@@ -226,27 +177,17 @@
             return !modeIsPortriat();
         }
 
+        // make an AJAX call to read in the html file
         function getHTML() {
-            if (debugTrace) console.log("aaaaaaaaaaaaaaaaaaaaaa");
-            var zzz;
             var htmlFile;
             $.get('/imports/tssgPageTemplate.html', function (data) {
                 if (debugData) console.log("data: " + data);
-                if (debugTrace) console.log("0000000000000000000000");
-                htmlFile = document.createElement('div');
                 htmlFile = data;
-                if (debugTrace) console.log("11111111111111111111111");
                 if (debugData) console.log("htmlFile: " + htmlFile);
 
-                // if (true) console.log("htmlDoc: " + htmlDoc);
-
-                // zzz = htmlFile;
                 // jQuery.ajaxSetup({ async: true });
-
-                if (debugTrace) console.log("bbbbbbbbbbbbbbbbbbbbbbbbbbbbb");
             });
 
-            if (debugTrace) console.log("ccccccccccccccccccccccccccccc");
             return htmlFile;
         }
 
@@ -302,27 +243,85 @@
         function toggleIsPhone() {
             isPhone = !isPhone;
             winResize();
+            debugStuff();
         }
+
+        // every thing above is either a variable declaration of a function definition
+        // this is where script execution begins.
+
+        // test this browser to see if it supports link import
+        var rslt = 'import' in document.createElement('link');
+        if (rslt) {
+            //  link import is supported, import our document template
+            htmlDoc = document.querySelector('link[rel="import"]').import;
+            if (debugData) console.log("htmlDoc: " + htmlDoc);
+        }
+        else {
+            // link import is not supported, read document template with jquery
+            if (debugTrace) console.log("import not supported");
+            jQuery.ajaxSetup({ async: false });
+            var htmlFile = getHTML();
+            jQuery.ajaxSetup({ async: true });
+            if (debugData) console.log("htmlFile: " + htmlFile);
+            htmlDoc = document.createElement('div');
+            htmlDoc.innerHTML = htmlFile;
+
+            if (debugTrace) console.log("11111111111111111111");
+            if (debugData) console.log("htmlDoc: " + htmlDoc.innerHTML);
+        }
+
+        if (debugTrace) console.log("22222222222222222222");
+        if (debugData) console.log("htmlDoc: " + htmlDoc.innerHTML);
+
+        // abitrary but seems to fit current definition 
+        // this is based on screen size which will remain constant
+        var isPhone = (screen.availWidth < 900 && screen.availHeight < 900);
+
+        // Grab the nav-bar div section
+        navbarElement = htmlDoc.querySelector('#nav-bar');
+        if (debugData) console.log("navbarElement: " + navbarElement.innerHTML);
+        // Grab the footer div section
+        footerElement = htmlDoc.querySelector('#footer');
+        if (debugData) console.log("footer: " + footerElement.innerHTML);
+        // Grab the content of each page
+        homeContent = htmlDoc.querySelector('#home-page');
+        // Initialize currentContent to home page. This will
+        // cause the home page to be the initial page when the 
+        // script is called in the body section below.
+        currentContent = homeContent;
+        mobileContent = htmlDoc.querySelector('#mobile-group');
+        dataContent = htmlDoc.querySelector('#data-group');
+        devOpsContent = htmlDoc.querySelector('#devOps-group');
+        qualityContent = htmlDoc.querySelector('#quality-group');
+        webContent = htmlDoc.querySelector('#web-group');
+        scheduleContent = htmlDoc.querySelector('#calendar-page');
+        debugPage = htmlDoc.querySelector('#debug-page');
+        emptyPlaceHolder = htmlDoc.querySelector('#empty-placeHolder');
 
     </script>
 </head>
 
 <body onresize="winResize()">
-    <script language="javascript">
-        // append each section to our DOM in the desired order
-        document.body.appendChild(navbarElement.cloneNode(true));
-        document.body.appendChild(currentContent.cloneNode(true));
-        if (displayFooter) {
-            document.body.appendChild(footerElement.cloneNode(true));
-        }
-        // The home page is loaded as the landing page, however
-        // the icon has been removed from the footer so there 
-        // is no need to set it as selected.
-        // addClass("home", "selected");
-        if (debugData) console.log("head: " + document.head.outerHTML);
-        if (debugData) console.log("body: " + document.body.outerHTML);
-    </script>
 
 </body>
+
+<!--
+    This code must be executed after the body is established.
+    If necessary it can be move to the body section.
+-->
+<script language="javascript">
+    // append each section to our DOM in the desired order
+    document.body.appendChild(navbarElement.cloneNode(true));
+    document.body.appendChild(currentContent.cloneNode(true));
+    if (displayFooter) {
+        document.body.appendChild(footerElement.cloneNode(true));
+    }
+    // The home page is loaded as the landing page, however
+    // the icon has been removed from the footer so there 
+    // is no need to set it as selected.
+    // addClass("home", "selected");
+    if (debugData) console.log("head: " + document.head.outerHTML);
+    if (debugData) console.log("body: " + document.body.outerHTML);
+</script>
 
 </html>
