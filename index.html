@@ -19,14 +19,16 @@
     <script language="javascript">
 
         "use strict";
- 
+
         // Because these variables are not declared in a function, their
         // scope is global.
 
+        // The following debug variables can be used to enable/disable 
+        // embedded console.log messages.
         // enable/disable console.log messages containing data
         var debugTrace = false;
         // enable/disable console.log messages indicating code path
-        var debugData = false;
+        var debugData = true;
 
         var htmlDoc;
         var navbarElement;
@@ -49,8 +51,10 @@
         // this function will get called each time the view port changes
         // if the device is a phone and display mode is landscape, the footer is removed if
         // required.  Otherwise if it is a phone in portriat mode, the footer is appended if
-        // required.  if the device is not a phone, no action is taken.
-        // window.addEventListener("resize", function () {
+        // required.  if the device is not a phone and footer is not currently displayed,
+        // it will be added back in.  
+        // the carousel is deleted and added back in parallel with the footer action.
+
         function winResize() {
             if (isPhone) {
                 if (modeIsLandscape()) {
@@ -82,6 +86,18 @@
                         // footer currently displayed.  Exit
                     }
                 }
+                return;
+            } else {
+                if (!displayFooter) {
+                    // not a phone and footer is not displayed.  Display it
+                    // footer is always on the bottom, so just append it
+                    document.body.appendChild(footerElement.cloneNode(true));
+                    // replace the empty place holder with the carousel
+                    var element = document.getElementById("empty-placeHolder");
+                    element.replaceWith(carousel);
+
+                    displayFooter = true;
+                }
             }
         }
 
@@ -96,26 +112,34 @@
             document.body.replaceChild(newContent, oldContent);
             if (displayFooter) {
                 var iconId = getIconId(oldContent);
+                // home and calenear icons are no longer being used in the footer
                 if (iconId.length > 0) {
-                    // home and calenear icons are no longer being used in the footer
-                    if (iconId !== "home" &&
-                        iconId !== "calendar" &&
-                        iconId != 'debug' &&
-                        iconId != "empty") {
-                        removeClass(iconId, "selected");
+                    switch (iconId) {
+                        case "home":
+                        case "calendar":
+                        case "debug":
+                        case "empty":
+                            break;
+                        default:
+                            removeClass(iconId, "selected");
                     }
                 }
+
                 iconId = getIconId(newContent);
                 if (iconId.length > 0) {
-                    // home and calenear icons are no longer being used in the footer
-                    if (iconId !== "home" &&
-                        iconId !== "calendar" &&
-                        iconId != 'debug' &&
-                        iconId != "empty") {
-                        addClass(iconId, "selected");
+                    switch (iconId) {
+                        case "home":
+                        case "calendar":
+                        case "debug":
+                        case "empty":
+                            break;
+                        default:
+                            addClass(iconId, "selected");
                     }
+
                 }
             }
+
             currentContent = newContent;
         }
 
@@ -178,13 +202,11 @@
         }
 
         // make an AJAX call to read in the html file
+        // need this when link import is not supported
         function getHTML() {
             var htmlFile;
             $.get('/imports/tssgPageTemplate.html', function (data) {
-                if (debugData) console.log("data: " + data);
                 htmlFile = data;
-                if (debugData) console.log("htmlFile: " + htmlFile);
-
                 // jQuery.ajaxSetup({ async: true });
             });
 
@@ -242,36 +264,32 @@
 
         function toggleIsPhone() {
             isPhone = !isPhone;
-            winResize();
+            // winResize does not resize the window.  In only respondes to a resize.
+            // We call it here to respond to a request to set the application into
+            // phone mode for debugging purposes.
+            winResize(); 
+            // again, for debugging, we have toggled the application 
+            // into/out of phone mode.  display the debug screen.
             debugStuff();
         }
 
         // every thing above is either a variable or a function definition
-        // this is where script execution begins.
+        // this is where inline code execution begins.
 
         // test this browser to see if it supports link import
         var rslt = 'import' in document.createElement('link');
         if (rslt) {
             //  link import is supported, import our document template
             htmlDoc = document.querySelector('link[rel="import"]').import;
-            if (debugData) console.log("htmlDoc: " + htmlDoc);
         }
         else {
             // link import is not supported, read document template with jquery
-            if (debugTrace) console.log("import not supported");
+            if (debugTrace) console.log(" link import not supported");
             jQuery.ajaxSetup({ async: false });
             var htmlFile = getHTML();
-            jQuery.ajaxSetup({ async: true });
-            if (debugData) console.log("htmlFile: " + htmlFile);
             htmlDoc = document.createElement('div');
             htmlDoc.innerHTML = htmlFile;
-
-            if (debugTrace) console.log("11111111111111111111");
-            if (debugData) console.log("htmlDoc: " + htmlDoc.innerHTML);
         }
-
-        if (debugTrace) console.log("22222222222222222222");
-        if (debugData) console.log("htmlDoc: " + htmlDoc.innerHTML);
 
         // abitrary but seems to fit current definition 
         // this is based on screen size which will remain constant
@@ -279,10 +297,8 @@
 
         // Grab the nav-bar div section
         navbarElement = htmlDoc.querySelector('#nav-bar');
-        if (debugData) console.log("navbarElement: " + navbarElement.innerHTML);
         // Grab the footer div section
         footerElement = htmlDoc.querySelector('#footer');
-        if (debugData) console.log("footer: " + footerElement.innerHTML);
         // Grab the content of each page
         homeContent = htmlDoc.querySelector('#home-page');
         // Initialize currentContent to home page. This will
@@ -318,10 +334,10 @@
     }
     // The home page is loaded as the landing page, however
     // the icon has been removed from the footer so there 
-    // is no need to set it as selected.
+    // is no need to set it as selected. It's here in case
+    // it gets added back in again.
     // addClass("home", "selected");
-    if (debugData) console.log("head: " + document.head.outerHTML);
-    if (debugData) console.log("body: " + document.body.outerHTML);
+
 </script>
 
 </html>
