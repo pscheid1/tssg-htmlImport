@@ -106,9 +106,7 @@
         // not home, calendar, and debug, it will add the selected class
         // to the new content and remove it from the old content.
         function setContent(newContent) {
-
             var oldContent = document.getElementById(currentContent.id);
-            if (debugData) console.log("oldContent: " + oldContent.outerHTML);
             document.body.replaceChild(newContent, oldContent);
             if (displayFooter) {
                 var iconId = getIconId(oldContent);
@@ -267,10 +265,20 @@
             // winResize does not resize the window.  In only respondes to a resize.
             // We call it here to respond to a request to set the application into
             // phone mode for debugging purposes.
-            winResize(); 
+            winResize();
             // again, for debugging, we have toggled the application 
             // into/out of phone mode.  display the debug screen.
             debugStuff();
+        }
+
+        function getParameterByName(name, url) {
+            if (!url) url = window.location.href;
+            name = name.replace(/[\[\]]/g, '\\$&');
+            var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
+                results = regex.exec(url);
+            if (!results) return null;
+            if (!results[2]) return '';
+            return decodeURIComponent(results[2].replace(/\+/g, ' '));
         }
 
         // every thing above is either a variable or a function definition
@@ -326,11 +334,38 @@
     If necessary it can be move to the body section.
 -->
 <script language="javascript">
+
+    var page = getParameterByName('go');
+    
+    switch (page) {
+        case 'web':
+            currentContent = webContent;
+            break;
+        case 'mobile':
+            currentContent = mobileContent;
+            break;
+        case 'quality':
+            currentContent = qualityContent;
+            break;
+        case 'data':
+            currentContent = dataContent;
+            break;
+        case 'devops':
+            currentContent = devOpsContent;
+            // url is being forced to lowercase
+            // correct case for addClass below
+            page = 'devOps';
+            break;
+        default:
+            break;
+    }
+
     // append each section to our DOM in the desired order
     document.body.appendChild(navbarElement.cloneNode(true));
     document.body.appendChild(currentContent.cloneNode(true));
     if (displayFooter) {
         document.body.appendChild(footerElement.cloneNode(true));
+        if (page) addClass(page, "selected");
     }
     // The home page is loaded as the landing page, however
     // the icon has been removed from the footer so there 
