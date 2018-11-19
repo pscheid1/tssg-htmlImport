@@ -8,10 +8,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <script src="https://code.jquery.com/jquery-1.10.2.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"></script>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css">
-
-
 
     <link rel="stylesheet" type="text/css" href="styles/tssgStyle.css">
     <link rel="import" href="imports/tssgPageTemplate.html">
@@ -19,6 +17,12 @@
     <script language="javascript">
 
         "use strict";
+        if (debugTrace) console.log("page initialization");
+;
+        window.addEventListener('hashchange', function () {
+            if (debugData) 
+                console.log("hashchange: " + window.location.hash.substring(1));
+        });
 
         // Because these variables are not declared in a function, their
         // scope is global.
@@ -28,7 +32,7 @@
         // enable/disable console.log messages containing data
         var debugTrace = false;
         // enable/disable console.log messages indicating code path
-        var debugData = true;
+        var debugData = false;
 
         var htmlDoc;
         var navbarElement;
@@ -39,16 +43,18 @@
         var devOpsContent;
         var qualityContent;
         var webContent;
-        var scheduleContent;
+        var calendarContent;
         var currentContent;
         var newContent;
         var debugPage;
         var emptyPlaceHolder;
         var carousel;
         var displayFooter = true;
+        // abitrary but seems to fit current definition 
+        // this is based on screen size which will remain constant
+        var isPhone = (screen.availWidth < 900 && screen.availHeight < 900);
 
-
-        // this function will get called each time the view port changes
+        // the winResize() function will get called each time the view port changes
         // if the device is a phone and display mode is landscape, the footer is removed if
         // required.  Otherwise if it is a phone in portriat mode, the footer is appended if
         // required.  if the device is not a phone and footer is not currently displayed,
@@ -100,7 +106,7 @@
                 }
             }
         }
-
+        
         // this funciton will replace the currently displayed content 
         // with the requested new content.  If the requested content is 
         // not home, calendar, and debug, it will add the selected class
@@ -110,7 +116,7 @@
             document.body.replaceChild(newContent, oldContent);
             if (displayFooter) {
                 var iconId = getIconId(oldContent);
-                // home and calenear icons are no longer being used in the footer
+                // home and calendar icons are no longer being used in the footer
                 if (iconId.length > 0) {
                     switch (iconId) {
                         case "home":
@@ -137,6 +143,10 @@
 
                 }
             }
+
+            // if (getIconId(newContent) !== "debug") {
+                window.location.hash = "#" + newContent.id;
+            // }
 
             currentContent = newContent;
         }
@@ -299,10 +309,6 @@
             htmlDoc.innerHTML = htmlFile;
         }
 
-        // abitrary but seems to fit current definition 
-        // this is based on screen size which will remain constant
-        var isPhone = (screen.availWidth < 900 && screen.availHeight < 900);
-
         // Grab the nav-bar div section
         navbarElement = htmlDoc.querySelector('#nav-bar');
         // Grab the footer div section
@@ -318,7 +324,7 @@
         devOpsContent = htmlDoc.querySelector('#devOps-group');
         qualityContent = htmlDoc.querySelector('#quality-group');
         webContent = htmlDoc.querySelector('#web-group');
-        scheduleContent = htmlDoc.querySelector('#calendar-page');
+        calendarContent = htmlDoc.querySelector('#calendar-page');
         debugPage = htmlDoc.querySelector('#debug-page');
         emptyPlaceHolder = htmlDoc.querySelector('#empty-placeHolder');
 
@@ -331,47 +337,76 @@
 
 <!--
     This code must be executed after the body is established.
-    If necessary it can be move to the body section.
+    If necessary it can be moved to the body section.
 -->
 <script language="javascript">
 
-    var page = getParameterByName('go');
-    
+    // a href string (#name-group) can be used in the url to by-pass
+    // the home page and go directly to any other page.
+    // the displayed url can be modified at any time to jump to any page.
+
+    var page = window.location.hash.substring(1);
+    // empty hash will result in home-page
+    if (debugData) console.log("page: " + page);
     switch (page) {
-        case 'web':
+        case 'web-group':
             currentContent = webContent;
             break;
-        case 'mobile':
+        case 'mobile-group':
             currentContent = mobileContent;
             break;
-        case 'quality':
+        case 'quality-qroup':
             currentContent = qualityContent;
             break;
-        case 'data':
+        case 'data-group':
             currentContent = dataContent;
             break;
-        case 'devops':
-            currentContent = devOpsContent;
-            // url is being forced to lowercase
-            // correct case for addClass below
+        case 'devops-group':
+            // if this is a url parameter, it is being forced to lowercase.
+            // correct case for addClass below.
             page = 'devOps';
+        // fall through to devOps case.
+        // calls from code use mixed case.
+        case 'devOps-group':
+            currentContent = devOpsContent;
+            break;
+        case 'calendar-page':
+            currentContent = calendarContent;
+            break;
+        case 'debug-page':
+            currentContent = debugPage;
             break;
         default:
+            page = ""; // incase it's an unknow page
             break;
     }
 
     // append each section to our DOM in the desired order
     document.body.appendChild(navbarElement.cloneNode(true));
     document.body.appendChild(currentContent.cloneNode(true));
+    if (page === "debug-page") {
+        // debug is a non-static page.
+        // we need to update it.
+        debugStuff();
+    }
     if (displayFooter) {
         document.body.appendChild(footerElement.cloneNode(true));
-        if (page) addClass(page, "selected");
+        if (page) {
+            switch (page) {
+                case "home-page":
+                case "calendar-page":
+                case "debug-page":
+                case "":
+                case "empty":
+                    // these pages do not have a footer icon
+                    break;
+                default:
+                    // make the footer icon selected for the 
+                    // appropriate page.
+                    addClass(getIconId(currentContent), "selected");
+            }
+        }
     }
-    // The home page is loaded as the landing page, however
-    // the icon has been removed from the footer so there 
-    // is no need to set it as selected. It's here in case
-    // it gets added back in again.
-    // addClass("home", "selected");
 
 </script>
 
