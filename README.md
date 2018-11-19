@@ -9,6 +9,8 @@
             - quality-group
             - data-group
             - devops-group
+            - calendar-page
+            - home-page (home page is the defaul for no href parameter)
 
 ### &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;example: domaine name/index.html#web-group
 
