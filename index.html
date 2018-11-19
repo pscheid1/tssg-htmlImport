@@ -112,6 +112,7 @@
         // not home, calendar, and debug, it will add the selected class
         // to the new content and remove it from the old content.
         function setContent(newContent) {
+            if (debugData) console.log("newContent: " + newContent.innerHTML);
             var oldContent = document.getElementById(currentContent.id);
             document.body.replaceChild(newContent, oldContent);
             if (displayFooter) {
@@ -148,7 +149,7 @@
                 window.location.hash = "#" + newContent.id;
             // }
            
-            window.scrollTo(0, 0);
+            pushToTop();
             currentContent = newContent;
         }
 
@@ -292,6 +293,10 @@
             return decodeURIComponent(results[2].replace(/\+/g, ' '));
         }
 
+        function pushToTop() {
+            window.scrollTo(0, 0);
+        }
+
         // every thing above is either a variable or a function definition
         // this is where inline code execution begins.
 
@@ -332,7 +337,7 @@
     </script>
 </head>
 
-<body onresize="winResize()">
+<body onresize="winResize()" onload="pushToTop()">
 
 </body>
 
@@ -385,6 +390,7 @@
     // append each section to our DOM in the desired order
     document.body.appendChild(navbarElement.cloneNode(true));
     document.body.appendChild(currentContent.cloneNode(true));
+    if (debugData) console.log("currentContent: " + currentContent.innerHTML);
     if (page === "debug-page") {
         // debug is a non-static page.
         // we need to update it.
