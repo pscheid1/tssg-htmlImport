@@ -18,9 +18,9 @@
 
         "use strict";
         if (debugTrace) console.log("page initialization");
-;
+        ;
         window.addEventListener('hashchange', function () {
-            if (debugData) 
+            if (debugData)
                 console.log("hashchange: " + window.location.hash.substring(1));
         });
 
@@ -106,7 +106,7 @@
                 }
             }
         }
-        
+
         // this funciton will replace the currently displayed content 
         // with the requested new content.  If the requested content is 
         // not home, calendar, and debug, it will add the selected class
@@ -146,9 +146,9 @@
             }
 
             // if (getIconId(newContent) !== "debug") {
-                window.location.hash = "#" + newContent.id;
+            window.location.hash = "#" + newContent.id;
             // }
-           
+
             pushToTop();
             currentContent = newContent;
         }
@@ -414,6 +414,12 @@
             }
         }
     }
+
+    $('.navbar-nav li a').on('click', function () {
+        if (!$(this).hasClass('dropdown-toggle')) {
+            $('.navbar-collapse').collapse('hide');
+        }
+    });
 
 </script>
 
