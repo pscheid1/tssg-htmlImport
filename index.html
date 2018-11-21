@@ -17,13 +17,8 @@
     <script language="javascript">
 
         "use strict";
-        if (debugTrace) console.log("page initialization");
-        ;
-        window.addEventListener('hashchange', function () {
-            if (debugData)
-                console.log("hashchange: " + window.location.hash.substring(1));
-        });
 
+        if (debugTrace) console.log("page initialization");
         // Because these variables are not declared in a function, their
         // scope is global.
 
@@ -34,6 +29,8 @@
         // enable/disable console.log messages indicating code path
         var debugData = false;
 
+        var calledFromListener = false;
+        var calledFromSetContent = false;
         var htmlDoc;
         var navbarElement;
         var footerElement;
@@ -115,6 +112,7 @@
             if (debugData) console.log("newContent: " + newContent.innerHTML);
             var oldContent = document.getElementById(currentContent.id);
             document.body.replaceChild(newContent, oldContent);
+            // console.log("newContent: " + newContent.id + " - " + "oldContent: " + oldContent.id);
             if (displayFooter) {
                 var iconId = getIconId(oldContent);
                 // home and calendar icons are no longer being used in the footer
@@ -145,10 +143,14 @@
                 }
             }
 
-            // if (getIconId(newContent) !== "debug") {
-            window.location.hash = "#" + newContent.id;
-            // }
+            // console.log("calledFromListener: " + calledFromListener);
+            // console.log("setting new hash: " + newContent.id);
 
+            if (!calledFromListener) {
+                calledFromSetContent = true;
+                // console.log("setting hash: " + newContent.id);
+                window.location.hash = "#" + newContent.id;
+            }
             pushToTop();
             currentContent = newContent;
         }
@@ -297,6 +299,62 @@
             window.scrollTo(0, 0);
         }
 
+        // this function is setup as an event listener
+        // window.addEventListener('hashchange', hashChanged);
+        function hashChanged() {
+            var newHash = window.location.hash.substring(1);
+            var newContent = "";
+            if (debugTrace) {
+                console.log("newHash: " + newHash);
+                console.log("calledFromSetContent: " + calledFromSetContent);
+            }
+
+            if (calledFromSetContent === true) {
+                calledFromSetContent = false;   
+                 return;
+            }
+
+            // console.log("Find content: " + newHash);
+            switch (newHash) {
+                case 'web-group':
+                    newContent = webContent;
+                    break;
+                case 'mobile-group':
+                    newContent = mobileContent;
+                    break;
+                case 'quality-qroup':
+                    newContent = qualityContent;
+                    break;
+                case 'data-group':
+                    newContent = dataContent;
+                    break;
+                case 'devops-group':
+                case 'devOps-group':
+                    newContent = devOpsContent;
+                    break;
+                case 'calendar-page':
+                    newContent = calendarContent;
+                    break;
+                case 'debug-page':
+                    debugStuff();
+                    // debugStuff() calls setContent, so returnS
+                    return;
+                default:
+                    newContent = homeContent;
+                    break;
+            }
+            
+            // setContent uses this to know not to change the hash
+            calledFromListener = true;
+            // console.log("newContent: " + newContent.id);
+            // console.log("Calling setContent");
+            setContent(newContent);
+            // console.log("Returning from setContent");
+            calledFromListener = false;
+
+        }
+
+
         // every thing above is either a variable or a function definition
         // this is where inline code execution begins.
 
@@ -344,16 +402,23 @@
 <!--
     This code must be executed after the body is established.
     If necessary it can be moved to the body section.
+
+    This code is called only once and is used to setup
+    the initial page.  
 -->
 <script language="javascript">
 
     // a href string (#name-group) can be used in the url to by-pass
     // the home page and go directly to any other page.
     // the displayed url can be modified at any time to jump to any page.
+    // currentContent is initialized to homeContent above.
 
+    // check to see if a hash has been added to the 
+    // initial url.  If so, use is requesting to initialize
+    // to a page other than home-page.
     var page = window.location.hash.substring(1);
     // empty hash will result in home-page
-    if (debugData) console.log("page: " + page);
+    if (debugTrace) console.log("page: " + page);
     switch (page) {
         case 'web-group':
             currentContent = webContent;
@@ -422,6 +487,8 @@
             $('.navbar-collapse').collapse('hide');
         }
     });
+
+    window.addEventListener('hashchange', hashChanged);
 
 </script>
 
