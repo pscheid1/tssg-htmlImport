@@ -18,7 +18,6 @@
 
         "use strict";
 
-        if (debugTrace) console.log("page initialization");
         // Because these variables are not declared in a function, their
         // scope is global.
 
@@ -28,6 +27,8 @@
         var debugTrace = false;
         // enable/disable console.log messages indicating code path
         var debugData = false;
+
+        if (debugTrace) console.log("page initialization");
 
         var calledFromListener = false;
         var calledFromSetContent = false;
@@ -112,7 +113,7 @@
             if (debugData) console.log("newContent: " + newContent.innerHTML);
             var oldContent = document.getElementById(currentContent.id);
             document.body.replaceChild(newContent, oldContent);
-            // console.log("newContent: " + newContent.id + " - " + "oldContent: " + oldContent.id);
+            if (debugData) console.log("newContent: " + newContent.id + " - " + "oldContent: " + oldContent.id);
             if (displayFooter) {
                 var iconId = getIconId(oldContent);
                 // home and calendar icons are no longer being used in the footer
@@ -143,12 +144,11 @@
                 }
             }
 
-            // console.log("calledFromListener: " + calledFromListener);
-            // console.log("setting new hash: " + newContent.id);
+            if (debugTrace) console.log("calledFromListener: " + calledFromListener);
 
             if (!calledFromListener) {
                 calledFromSetContent = true;
-                // console.log("setting hash: " + newContent.id);
+                if (debugTrace) console.log("setting hash: " + newContent.id);
                 window.location.hash = "#" + newContent.id;
             }
             pushToTop();
@@ -337,7 +337,7 @@
                     break;
                 case 'debug-page':
                     debugStuff();
-                    // debugStuff() calls setContent, so returnS
+                    // debugStuff() calls setContent, so return
                     return;
                 default:
                     newContent = homeContent;
