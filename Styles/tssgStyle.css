@@ -87,11 +87,13 @@ footer img {
   padding: 4px;
   margin: 0 2% 2% 2%;
   background-color: white;
+  /* assign a border with same color as footer background color */
+  /* then when icon is selected it won't appear to shrink */
+  border: 4px solid rgb(57, 123, 247);
   border-radius: 13%;
 }
 
 .selected {
   border: 4px solid black;
-  /* border: 4px solid rgb(57, 123, 247); */
   /* background-color: rgb(57, 123, 247); */
 }
