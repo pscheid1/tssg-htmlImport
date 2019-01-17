@@ -1,0 +1,73 @@
+General things that can assist in getting VS Code Debugger for Chrome working.
+
+Check out the following web site: https://marketplace.visualstudio.com/items?itemName=msjsdiag.debugger-for-chrome
+The web site gives you everything you need to know but it isn't always clear.
+However, it really is pretty easy to implement.  
+Basically:
+    Install the Debugger for Chrome Extension.
+    Restart VS Code.
+    What I don't remember is how I got the .vscode/launch.json file.  Possibly by selecting the debug button in the left side menu bar.
+    At some point the launc.json file was there and every thing seemed to work such as it would launch chrome with index.html
+    eventhough I had not modified anything.  Setting breakpoints resulted on white circles with black interiors.  I was frustrated
+    and confused for some time until I figured out the following information. If you are smarter than me you porbably won't need these
+    instructions.  If you have trouble this should help you get going.
+
+The following two items may have helped get break points to work. Not sure, but after doing this things began to work.
+
+    In the launch.json file add the actual file name "index.html" to th url.
+    In the launch.json file use forward slashes in place of double backslash.
+
+        {
+            "type": "chrome",
+            "request": "launch",
+            "name": "Launch Chrome against localhost",
+            "url": "http://localhost:9000/index.html",
+            "webRoot": "${workspaceFolder}"
+        }
+
+        Obviously the port should match what ever you set up in your local server.  For my server I'm just using a standard apache server.
+
+        Made the following changes to the httpd.conf file:
+
+        Added a listen statement:
+        Listen 9000
+
+        Added the following VirtualHost declaration:
+        <VirtualHost *:9000>
+            DocumentRoot "d:/tssg/htmlImport"
+            <Directory "d:/tssg/htmlImport">
+                AllowOverride None
+                AllowOverrideList None
+            </Directory>
+        </VirtualHost>
+
+        d:/tssg/htmlImport equates to the ${workspaceFolder} declared in the launch.json file
+
+        Also, I have apache setup so I can access it via my phone through my local network.
+
+Setting break points seems to be very touchy.  I found it best to make sure debugging is stopped.
+The following steps are not the only sequence you can use to setup breakpoints but this sequence should work.
+Select the debug option from the left hand menu.
+Go to the source location you want to set a break point and and right click to the left of the sequence number.
+You should get a dialog offering three choices: Add a Breakpoint, Add a Conditional Breakpoint, Add a Logpoint
+Add a Breakpoint does just that.  You should see a solid red dot.  Also in the list of breakpoints on the left you will see a red dot, file name and line number.
+Add a Conditional Breakpoint allows you to enter an expression which when true will cause a break.  This will dispaly a red dot with an equal sign in it.
+An condidional expression example is simplly: someName === "web-page"   or traceFlag === true
+If you select Logpoint, you can enter a text string (with variables) that will be written to the debug log.  The break point will display a red diamond.
+You can view the debug console by selecting it in the view list at the bottom of the code page.
+In the file, you can right click any breakpoint and remove, edit, disable/enable it.
+In the breakpoints list in the left menu you can right click a breakpoint and edit, remove it, remove all, enable/disable all, or reapply all.
+I'm not sure what reapply all means.
+If a breakpoint is solid grey, it is disabled.  If it is white with a black center it is not active.  
+I don't understand the last state but it basically means something is not right and breakpoints will not work.
+To begin a debugging session:
+    select the debug button if you are in some other state.
+    select a debugging method in the top left menu bar (You probably want the launch method) 
+    select the green arrow to the right of the DEBUG label (extreme top left)
+    This should launch Chrome and run your task.  In the above launch.file code, Chrome would be run with the delcared URL.
+    The debug controls will be displayed in the top center of the code listing (index.html in the above case)
+    If you had a breakpoint set and the code goes there, you should halt on that line in index.html (in the above case) Line will be highlighted.
+    The 360 arrow will cause the browser to reload.
+    If things get messed up, hit the red square to terminate the debugging session.
+    Close any browser tabs debugging had opened.
+    Select the green arrow to start over.

@@ -23,9 +23,9 @@
 
         // The following debug variables can be used to enable/disable 
         // embedded console.log messages.
-        // enable/disable console.log messages containing data
-        var debugTrace = false;
         // enable/disable console.log messages indicating code path
+        var debugTrace = false;
+        // enable/disable console.log messages containing data
         var debugData = false;
 
         if (debugTrace) console.log("page initialization");
@@ -48,6 +48,7 @@
         var emptyPlaceHolder;
         var carousel;
         var displayFooter = true;
+
         // abitrary but seems to fit current definition 
         // this is based on screen size which will remain constant
         var isPhone = (screen.availWidth < 900 && screen.availHeight < 900);
@@ -112,6 +113,8 @@
         function setContent(newContent) {
             if (debugData) console.log("newContent: " + newContent.innerHTML);
             var oldContent = document.getElementById(currentContent.id);
+            //console.log("newContent.id: "   + newContent.id);
+            var rslt = (newContent.id === "calendar-page");
             document.body.replaceChild(newContent, oldContent);
             if (debugData) console.log("newContent: " + newContent.id + " - " + "oldContent: " + oldContent.id);
             if (displayFooter) {
