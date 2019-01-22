@@ -16,9 +16,4 @@
 
 ### &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The URL is updated automatically as pages are selected by icon or menu selection.  The link may be copied and saved off for direct access at a later time.
 
-### &nbsp;&nbsp;&nbsp;&nbsp;There are two debugging aids built into the code. By default, they are commented out. They can be enabled by removing the block comment tokens surrounding the two anchor declarations.  Both commands can be enabled together or separately.  The Toggle-Phone command toggles the isPhone variable and calls debug-page to display the isPhone state along with other information.  Setting the isPhone variable to true forces the application to run as it would on a small screen device.  The Debug command displays a page with various debugging information.  The comments and code appear in the current version in lines 42 through 58.  When enabled, two menu items (Toggle-phone and Debug) appear at the extreme right end of the nav bar.
-
-
-
-
-
+### There are two debugging aids built into the code. By default, they are commented out. They can be enabled by removing the block comment tokens > > surrounding the two anchor declarations.  Both commands can be enabled together or separately.  The Toggle-Phone command toggles the isPhone variable and calls debug-page to display the isPhone state along with other information.  Setting the isPhone variable to true forces the application to run as it would on a small screen device.  The Debug command displays a page with various debugging information.  The comments and code appear in the current version in lines 42 through 58.  When enabled, two menu items (Toggle-phone and Debug) appear at the extreme right end of the nav bar.
